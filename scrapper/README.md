@@ -7,4 +7,13 @@
 
 # Использование
 1. Выполните команду `make execute`
-2. Укажите путь в которой нужно сохранить папку `images` с изображениями
+2. Перейдите на страницу http://0.0.0.0:8000/docs#/default/start_start_post
+3. Укажите тело запроса
+
+   Например:
+    ```
+    {
+      "start_url": "https://www.lamoda.ru/catalogsearch/result/?q=%D0%B6%D0%B5%D0%BD%D1%81%D0%BA%D0%BE%D0%B5+%D0%B1%D0%B5%D0%BB%D1%8C%D0%B5&submit=y&gender_section=women&",
+      "max_images": 1000
+    }
+    ```
