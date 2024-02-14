@@ -2,6 +2,7 @@ import uvicorn, os
 from pydantic import BaseModel
 from fastapi import Request, FastAPI
 from dotenv import dotenv_values
+from scrapper.models import ScraperParams
 from scrapper import scrapper
 
 # Загрузка переменных окружения из файла .env
@@ -9,14 +10,9 @@ ENV = dotenv_values(".env")
 
 app = FastAPI()
 
-class ScraperParams(BaseModel):
-    start_url: str
-    max_images: int
-
 @app.post("/start")
-async def start(request: Request, params: ScraperParams):
-    body = await request.json()
-    await scrapper.scrap(body['max_images'], body['start_url'])
+async def start(request: ScraperParams):
+    await scrapper.scrap(request.max_images, request.start_url)
 
 def loader():
     """Launched with `poetry run start`"""
