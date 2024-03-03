@@ -44,9 +44,12 @@ async def connect_database():
         logger.error(f"Error: {e}")
 
 async def fetch(url):
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, timeout=30)
-        return response.content
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:  # Увеличиваем таймаут до 60 секунд
+            response = await client.get(url)
+            return response.content
+    except httpx.ReadTimeout:
+        logger.error(f"Timeout error while fetching {url}")
 
 async def parse_and_save_images(catalog_divs, base_url, pool):
     tasks = []
