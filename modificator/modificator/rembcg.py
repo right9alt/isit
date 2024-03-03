@@ -21,10 +21,10 @@ async def connect_database():
         # Создание пула подключений к базе данных
         pool = await asyncpg.create_pool(
             database = ENV["POSTGRES_DB"],
-            user =     ENV["POSTGRES_USER"],
+            user     = ENV["POSTGRES_USER"],
             password = ENV["POSTGRES_PASSWORD"],
-            host =     ENV["POSTGRES_HOST"],
-            port =     ENV["POSTGRES_PORT"]
+            host     = ENV["POSTGRES_HOST"],
+            port     = ENV["POSTGRES_PORT"]
         )
 
         # Создание таблицы "selected_images", если она не существует

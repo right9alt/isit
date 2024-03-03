@@ -19,10 +19,10 @@ async def connect_database():
   try:
       conn = await asyncpg.connect(
           database = ENV["POSTGRES_DB"],
-          user =     ENV["POSTGRES_USER"],
+          user     = ENV["POSTGRES_USER"],
           password = ENV["POSTGRES_PASSWORD"],
-          host =     ENV["POSTGRES_HOST"],
-          port =     ENV["POSTGRES_PORT"]
+          host     = ENV["POSTGRES_HOST"],
+          port     = ENV["POSTGRES_PORT"]
       )
 
       await conn.execute("""
