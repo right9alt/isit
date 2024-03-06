@@ -1,19 +1,28 @@
-import uvicorn, os
-from pydantic import BaseModel
+import uvicorn, os, asyncpg
 from fastapi import Request, FastAPI
-from dotenv import dotenv_values
 from scrapper.models import ScraperParams
 from scrapper import scrapper
-
-# Загрузка переменных окружения из файла .env
-ENV = dotenv_values(".env")
+from scrapper.utils import Context
+from scrapper import query
 
 app = FastAPI()
 
+ctx = Context()
+
+@app.on_event("startup")
+async def startup_event():
+  """Вызывается при запуске приложения."""
+  ctx.db_handle = await query.connect()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+  await query.disconnect(ctx.db_handle)
+
 @app.post("/start")
 async def start(request: ScraperParams):
-    await scrapper.scrap(request.max_images, request.start_url)
+  ctx.set_logger(os.getenv("SCRAPPER_LOG"))
+  await scrapper.scrap(request.max_images, request.start_url, ctx)
 
 def loader():
-    """Launched with `poetry run start`"""
-    uvicorn.run("scrapper.main:app", host=ENV["HOST"], port=int(ENV["PORT"]), reload=True)
+  """Launched with `poetry run start`"""
+  uvicorn.run("scrapper.main:app", host=os.getenv("HOST"), port=int(os.getenv("PORT")), reload=True)
