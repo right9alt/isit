@@ -12,7 +12,6 @@ WORKDIR /app
 # Скопируем только файлы зависимостей, чтобы избежать проблем с кэшированием
 #COPY utils.py /app/scrapper/
 COPY scrapper/poetry.lock scrapper/pyproject.toml /app/
-COPY scrapper/.env.sample /app/.env
 
 # Установим Poetry
 RUN pip install poetry

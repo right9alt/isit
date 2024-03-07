@@ -1,15 +1,12 @@
-import asyncio, uuid, asyncpg, httpx, hashlib
+import asyncio, uuid, asyncpg, httpx, hashlib, os
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from scrapper import query
-
-# константы
-HTTP_SUCCESS = 200  # Успешный HTTP-код ответа
-TIMEOUT = 60
+from fastapi import status
 
 async def fetch(url, ctx):
   try:
-    async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+    async with httpx.AsyncClient(timeout=int(os.getenv("TIMEOUT"))) as client:
       response = await client.get(url)
       return response.content
   except httpx.ReadTimeout:
@@ -29,8 +26,8 @@ async def parse_and_save_images(catalog_divs, base_url, ctx):
 async def save_image(url, ctx):
   try:
     async with httpx.AsyncClient() as client:
-      response = await client.get(url, timeout=TIMEOUT)
-      if response.status_code == HTTP_SUCCESS:
+      response = await client.get(url, timeout=int(os.getenv("TIMEOUT")))
+      if response.status_code == status.HTTP_200_OK:
         content_type = response.headers['Content-Type'].split('/')[-1]
         filename = str(uuid.uuid4()) + '.' + content_type
         file_content = response.content

@@ -20,7 +20,7 @@ async def shutdown_event():
 
 @app.post("/start")
 async def start(request: ScraperParams):
-  ctx.set_logger(os.getenv("SCRAPPER_LOG"))
+  ctx.set_logger_handler(os.getenv("SCRAPPER_LOG"))
   await scrapper.scrap(request.max_images, request.start_url, ctx)
 
 def loader():
