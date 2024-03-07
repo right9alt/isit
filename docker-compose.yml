@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  fastapi-scrapper:
+    build:
+      context: ./
+      dockerfile: ./scrapper/Dockerfile
+    command: poetry run app -V
+    volumes:
+      - ./scrapper/:/app/
+      - ./utils.py:/app/scrapper/utils.py
+    env_file:
+      - ./.secrets/scrapper.env
+    ports:
+      - 8001:8001
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:12.3-alpine
+    restart: always
+    env_file:
+      - ./.secrets/postgres.env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./db-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - 5555:5432
+
+volumes:
+  postgres:

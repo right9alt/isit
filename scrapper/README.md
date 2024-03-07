@@ -1,19 +1,13 @@
 # Асинхронный веб-скрапер для загрузки изображений с сайта
 Этот сервис представляет собой асинхронный веб-скрапер, который загружает изображения с сайта и сохраняет их в указанную папку.
-
-# Установка
-1. Клонируйте репозиторий
-2. Запустите `make install`
-
 # Использование
-1. Выполните команду `make execute`
-2. Перейдите на страницу http://0.0.0.0:8000/docs#/default/start_start_post
-3. Укажите тело запроса
+1. Перейдите на страницу http://0.0.0.0:8001/docs#/default/start_start_post
+2. Укажите тело запроса
 
    Например:
     ```
     {
-      "start_url": "https://www.lamoda.ru/catalogsearch/result/?q=%D0%B6%D0%B5%D0%BD%D1%81%D0%BA%D0%BE%D0%B5+%D0%B1%D0%B5%D0%BB%D1%8C%D0%B5&submit=y&gender_section=women&",
-      "max_images": 1000
+      "start_url": "https://www.lamoda.ru/c/563/bags-sumki-chehli/?",
+      "max_images": 100
     }
     ```

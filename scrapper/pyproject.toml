@@ -15,7 +15,7 @@ uvicorn = "^0.27.0.post1"
 python-dotenv = "^1.0.1"
 fastapi = "^0.109.2"
 pydantic = "^2.6.1"
-psycopg2-binary = "^2.9.9"
+asyncpg = "^0.29.0"
 
 [tool.poetry.scripts]
 app = "scrapper.main:loader"
