@@ -29,16 +29,17 @@ async def fetch_all_scrapped_images_images(conn):
 async def delete_duplicate_image(conn, duplicate_id):
   await conn.execute("DELETE FROM scrapped_images WHERE id = $1", duplicate_id)
 
-async def save_pyramid_image(conn, file_name, file_data):
-  await conn.execute("INSERT INTO pyramid_images (file_name, file_data) VALUES ($1, $2)", file_name, file_data)
+async def save_pyramid_image(conn, file_data, selected_image_id_1, selected_image_id_2):
+  insert_query = "INSERT INTO pyramid_images ( file_data, selected_image_id_1, selected_image_id_2) VALUES ($1, $2, $3)"
+  await conn.execute(insert_query, file_data, selected_image_id_1, selected_image_id_2)
 
 async def selected_image_by_id(conn, image_id):
   async with conn.transaction():
     return await conn.fetchval("SELECT file_data FROM selected_images WHERE id = $1", image_id)
 
-async def insert_selected_image(conn,  file_name, file_hash, processed_data):
+async def insert_selected_image(conn, fk_scrapped_image_id, processed_data):
   insert_query = """
-    INSERT INTO selected_images (file_name, file_hash, file_data) 
-    VALUES ($1, $2, $3)
+    INSERT INTO selected_images (scrapped_image_id, file_data)
+    VALUES ($1, $2)
   """
-  await conn.execute(insert_query, file_name, file_hash, processed_data)
+  await conn.execute(insert_query, fk_scrapped_image_id, processed_data)

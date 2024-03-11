@@ -13,14 +13,14 @@ async def fetch_image(ctx, image_id):
           ctx.logger.info(f"Изображение найдено с ID: {image_id}")
         return image_data
   except Exception as e:
-    ctx.logger.error(f"Error fetching image {image_id}: {e}")
+    ctx.logger.error(f"Ошибка поиска изображения {image_id}: {e}")
     raise
 
-async def save_image(ctx, file_name, file_data):
+async def save_image(ctx, file_data, img1_id, img2_id):
   try:
-    await database.save_pyramid_image(ctx.db_handle, file_name, file_data)
+    await database.save_pyramid_image(ctx.db_handle, file_data, img1_id, img2_id)
   except Exception as e:
-    ctx.logger.error(f"Ошибка при сохранении изображения {file_name}:", e)
+    ctx.logger.error(f"Ошибка при сохранении изображения pyramid_{img1_id}_{img2_id}:", e)
     raise
 
 async def generate_gaussian_pyramid(image, levels):
@@ -45,7 +45,7 @@ async def reconstruct_image_from_pyramid(laplacian_pyramid):
     reconstructed_image = cv2.add(reconstructed_image, laplacian_pyramid[i])
   return reconstructed_image
 
-async def main(img1_id, img2_id, ctx):
+async def pyramid_start(img1_id, img2_id, ctx):
   
   img1_data = await fetch_image(ctx, img1_id)
   img2_data = await fetch_image(ctx, img2_id)
@@ -78,13 +78,10 @@ async def main(img1_id, img2_id, ctx):
   ls_ = await reconstruct_image_from_pyramid(LS)
 
   # Сохраняем реконструированное изображение
-  file_name = f"pyramid_{img1_id}_{img2_id}.jpg"
   success, encoded_image = cv2.imencode('.jpg', ls_)
 
   if success:
-    await save_image(ctx, file_name, encoded_image.tobytes())
+    await save_image(ctx, encoded_image.tobytes(), img1_id, img2_id)
   else:
     ctx.logger.error("Не удалось закодировать изображение.")
 
-async def pyramid_start(img1_id, img2_id, ctx):
-  await main(img1_id, img2_id, ctx)

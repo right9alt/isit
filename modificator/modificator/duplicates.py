@@ -34,7 +34,7 @@ async def find_duplicate_and_unique_images(ctx, threshold=int(os.getenv("THRESHO
       return unique_images
 
 
-async def main(ctx):
+async def rem_duplicates(ctx):
 
   ctx.logger.info(f"Поиск и удаление дубликатов - начало")
 
@@ -42,6 +42,3 @@ async def main(ctx):
   await find_duplicate_and_unique_images(ctx)
 
   ctx.logger.info(f"Поиск и удаление дубликатов - завершено")
-
-async def rem_dup(ctx):
-  await main(ctx)

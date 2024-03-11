@@ -15,6 +15,8 @@ ctx = Context()
 async def startup_event():
   """Вызывается при запуске приложения."""
   ctx.db_handle = await database.connect()
+  ctx.set_logger_handler(os.getenv("MODIFICATOR_LOG"))
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -22,17 +24,14 @@ async def shutdown_event():
 
 @app.post("/rem_bg")
 async def rem_bg():
-  ctx.set_logger_handler(os.getenv("REMBCG_LOG"))
-  await rembcg.rem_bg(ctx)
+  await rembcg.rem_background(ctx)
 
 @app.post("/rem_dup")
 async def rem_dup():
-  ctx.set_logger_handler(os.getenv("DUPLICATES_LOG"))
-  await duplicates.rem_dup(ctx)
+  await duplicates.rem_duplicates(ctx)
 
 @app.post("/pyramid")
 async def pyramid_handler(request: PyramidParams):
-  ctx.set_logger_handler(os.getenv("PYRAMID_LOG"))
   await pyramid.pyramid_start(request.first_image_id, request.second_image_id, ctx)
 
 def loader():

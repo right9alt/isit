@@ -9,12 +9,13 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Установим рабочий каталог в контейнере на /app
 WORKDIR /app
 
+# Установим Poetry
+RUN pip install poetry
+
 # Скопируем только файлы зависимостей, чтобы избежать проблем с кэшированием
 #COPY utils.py /app/scrapper/
 COPY scrapper/poetry.lock scrapper/pyproject.toml /app/
 
-# Установим Poetry
-RUN pip install poetry
 RUN poetry lock
 
 # Установим зависимости проекта с помощью Poetry

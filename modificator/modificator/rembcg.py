@@ -4,9 +4,9 @@ from PIL import Image
 from modificator.utils import database
 
 async def process_image(ctx, row):
-  file_data = row["file_data"]
-  file_name = row["file_name"]
-  file_hash = row["file_hash"]
+  file_data            = row["file_data"]
+  file_name            = row["file_name"]
+  fk_scrapped_image_id = row["id"]
   
   # Удаление фона
   try:
@@ -20,7 +20,7 @@ async def process_image(ctx, row):
   async with ctx.db_handle.acquire() as conn:
     async with conn.transaction():
       try:
-        await database.insert_selected_image(conn, file_name, file_hash, processed_data)
+        await database.insert_selected_image(conn, fk_scrapped_image_id, processed_data)
         ctx.logger.info(f"Фон удален для {file_name}")
       except asyncpg.exceptions.UniqueViolationError:
         ctx.logger.error(f"Обнаружен дубликат хэша файла для {file_name}, пропуск...")
@@ -50,12 +50,12 @@ async def process_images(ctx):
           async with conn.transaction():
             await process_image(ctx, row)
         except asyncpg.exceptions.UniqueViolationError:
-          ctx.logger.error(f"Обнаружен дубликат хэша файла для {row['file_name']}, пропуск...")
+          ctx.logger.error(f"Обнаружен дубликат внешнего ключа изображения для name: {row['file_name']} id: {row['id']}, пропуск...")
         except Exception as e:
           ctx.logger.error(f"Ошибка при обработке изображения {row['file_name']}: {e}")
 
 
-async def main(ctx):
+async def rem_background(ctx):
   # Подключение к базе данных
   ctx.logger.info(f"Начат процесс удаления фона")
 
@@ -63,6 +63,3 @@ async def main(ctx):
   await process_images(ctx)
 
   ctx.logger.info(f"Процесс удаления фона завершен")
-
-async def rem_bg(ctx):
-  await main(ctx)
