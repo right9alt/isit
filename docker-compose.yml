@@ -8,11 +8,26 @@ services:
     command: poetry run app -V
     volumes:
       - ./scrapper/:/app/
-      - ./utils.py:/app/scrapper/utils.py
+      - ./utils/:/app/scrapper/utils/
     env_file:
       - ./.secrets/scrapper.env
     ports:
       - 8001:8001
+    depends_on:
+      - postgres
+
+  fastapi-modificator:
+    build:
+      context: ./
+      dockerfile: ./modificator/Dockerfile
+    command: poetry run app -V
+    volumes:
+      - ./modificator/:/app/
+      - ./utils/:/app/modificator/utils/
+    env_file:
+      - ./.secrets/modificator.env
+    ports:
+      - 8002:8002
     depends_on:
       - postgres
 

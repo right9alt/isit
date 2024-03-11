@@ -1,5 +1,5 @@
 # Используем официальный образ Python в качестве родительского образа
-FROM python:3.12-slim
+FROM python:3.10-slim
 
 # Установим переменные среды для Python и убедимся, что Python выводит все
 # в stdout и stderr без буферизации (например, для журналов Docker)
@@ -13,8 +13,8 @@ WORKDIR /app
 RUN pip install poetry
 
 # Скопируем только файлы зависимостей, чтобы избежать проблем с кэшированием
-#COPY utils.py /app/scrapper/
-COPY scrapper/poetry.lock scrapper/pyproject.toml /app/
+#COPY utils.py /app/modificator/
+COPY modificator/poetry.lock modificator/pyproject.toml /app/
 
 RUN poetry lock
 
@@ -22,4 +22,4 @@ RUN poetry lock
 RUN poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi
 
-COPY ./scrapper /app
+COPY ./modificator /app

@@ -1,7 +1,7 @@
 import asyncio, uuid, asyncpg, httpx, hashlib, os
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from scrapper import query
+from scrapper.utils import database
 from fastapi import status
 
 async def fetch(url, ctx):
@@ -38,7 +38,7 @@ async def save_image(url, ctx):
         async with ctx.db_handle.acquire() as conn:
           try:
             # Вставляем изображение в базу данных
-            await query.insert_scrapped_image(conn, filename, file_hash, file_content)
+            await database.insert_scrapped_image(conn, filename, file_hash, file_content)
             
             ctx.logger.info(f"Изображение сохранено: {filename}")
             return True  # Успешно вставлено в базу данных
