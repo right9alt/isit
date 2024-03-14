@@ -1,44 +1,17 @@
 from dotenv import dotenv_values
-import asyncpg, logging, io, torch
+import io, torch
+from finder.utils import database
 import clip
 from PIL import Image
 
-# Configure the logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Load environment variables from the .env file
-ENV = dotenv_values(".env")
-
-# Add a file handler to write logs to a file
-file_handler = logging.FileHandler(ENV.get("CLIP_LOG"))
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-
-# Подключение к базе данных PostgreSQL
-async def connect_database():
+async def get_images(ctx):
     try:
-        conn = await asyncpg.connect(
-            database = ENV["POSTGRES_DB"],
-            user     = ENV["POSTGRES_USER"],
-            password = ENV["POSTGRES_PASSWORD"],
-            host     = ENV["POSTGRES_HOST"],
-            port     = ENV["POSTGRES_PORT"]
-        )
-
-        return conn
+        async with ctx.db_handle.acquire() as conn:
+            async with conn.transaction():
+                result = await database.fetch_all_selected_images_id_data(conn)
+                return result
     except Exception as e:
-        logger.error(f"Ошибка при подключении к базе данных: {e}")
-        raise
-
-async def get_images(conn):
-    try:
-        query = f"SELECT id, file_data FROM selected_images"
-        result = await conn.fetch(query)
-        return result
-    except Exception as e:
-        logger.error(f"Ошибка при выполнении запроса к базе данных: {e}")
+        ctx.logger.error(f"Ошибка при выполнении запроса к базе данных: {e}")
         raise
 
 async def calculate_similarity(model, image, text):
@@ -48,11 +21,11 @@ async def calculate_similarity(model, image, text):
         similarity = (image_features @ text_features.T).cpu().numpy()
     return similarity[0][0]
 
-async def text_search(model, preprocess, device, word, conn, save=5):
+async def text_search(model, preprocess, device, word, ctx, save=5):
     text = clip.tokenize([word]).to(device)
     similarities = []
 
-    images = await get_images(conn)
+    images = await get_images(ctx)
 
     for image_id, image_data in images:
         try:
@@ -61,34 +34,28 @@ async def text_search(model, preprocess, device, word, conn, save=5):
             similarity = await calculate_similarity(model, image, text)
             similarities.append((image_id, similarity))
         except Exception as e:
-            logger.error(f"Ошибка при обработке изображения {image_id}: {e}")
+            ctx.logger.error(f"Ошибка при обработке изображения {image_id}: {e}")
 
     similarities.sort(key=lambda x: x[1], reverse=True)
 
     return [image_id for image_id, _ in similarities[:save]]
 
-def load_clip_model():
-    logger.info('loading clip model...')
+def load_clip_model(ctx):
+    ctx.logger.info('загрузка clip модели...')
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device)
-    logger.info('clip loaded')
+    ctx.logger.info('clip загружена')
     return model, preprocess, device
 
-async def clip_text_searcher(query, conn):
-    model, preprocess, device = load_clip_model()
+async def clip_text_searcher(query, ctx):
+    model, preprocess, device = load_clip_model(ctx)
 
-    return await text_search(model, preprocess, device, query, conn)
+    return await text_search(model, preprocess, device, query, ctx)
 
-async def main(search_text):
-    conn = await connect_database()
+async def clip_search(search_text, ctx):
 
-    image_ids = await clip_text_searcher(search_text, conn)
+    image_ids = await clip_text_searcher(search_text, ctx)
 
-    logger.info(f"Found images with IDs: {image_ids}")
-
-    await conn.close()
+    ctx.logger.info(f"Поиск изображений с IDs: {image_ids}")
 
     return image_ids
-
-async def clip_search(search_text):
-    return await main(search_text)

@@ -26,6 +26,20 @@ async def fetch_all_scrapped_images_images(conn):
   async with conn.transaction():
     return await conn.fetch("SELECT id, file_name, file_hash, file_data FROM scrapped_images")
 
+async def fetch_all_rows_without_target(conn, target_id):
+   async with conn.transaction():
+    return await conn.fetch("SELECT id, file_data FROM selected_images WHERE id != $1", target_id)
+
+async def fetch_selected_images_ids(conn):
+   return await conn.fetch("SELECT id FROM selected_images")
+
+async def fetch_all_selected_images_id_data(conn):
+  return await conn.fetch("SELECT id, file_data FROM selected_images")
+
+async def fetch_row_selected_image(conn, image_id):
+  query = "SELECT id, file_data FROM selected_images WHERE id = $1"
+  return await conn.fetchrow(query, image_id)
+
 async def delete_duplicate_image(conn, duplicate_id):
   await conn.execute("DELETE FROM scrapped_images WHERE id = $1", duplicate_id)
 
