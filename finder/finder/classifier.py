@@ -1,10 +1,10 @@
-import torch, io, torchvision
+import torch, io, torchvision, os
 from torchvision import transforms
 from PIL import Image
 from finder.utils import database
 
 # Константы
-MODEL_PATH = "bag_classifier.pth"  # Путь к файлу с предобученной моделью
+MODEL_PATH = os.getenv("MODEL_PATH")  # Путь к файлу с предобученной моделью
 CLASSES = ['bag', 'clutch', 'hobo', 'tout']  # Классы для классификации
 MEAN = [0.485, 0.456, 0.406]  # Средние значения для нормализации
 STD = [0.229, 0.224, 0.225]  # Стандартные отклонения для нормализации
