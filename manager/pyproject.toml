@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "manager"
+version = "0.1.0"
+description = ""
+authors = ["Данилин Даниил <d-danilin@groupprice.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.31.0"
+logging = "^0.4.9.6"
+uvicorn = "^0.27.1"
+fastapi = "^0.110.0"
+pydantic = "^2.6.3"
+
+[tool.poetry.scripts]
+app = "manager.main:start"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

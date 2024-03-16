@@ -1,7 +1,7 @@
 import uvicorn, os
 from pydantic import BaseModel
 from fastapi import Request, FastAPI
-from finder.models import ImageIdParams, ClipParams
+from finder.utils.models import ImageIdParams, ClipParams
 from finder import hsv, ciedge2000, photo, clip, classifier
 from finder.utils.utils import Context
 from finder.utils import database
@@ -38,8 +38,8 @@ async def start(request: ImageIdParams):
 async def start(request: ClipParams):
     return {"images_ids_by_clip": await clip.clip_search(request.search_text, ctx)}
 
-@app.post("/class")
-async def start(request: ImageIdParams):
+@app.post("/classify")
+async def classify(request: ImageIdParams):
     return {"image_class:": await classifier.predict_class(request.image_id, ctx)}
 
 def loader():

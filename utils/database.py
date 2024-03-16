@@ -12,14 +12,14 @@ async def connect():
   return pool
 
 async def disconnect(conn):
-    """Закрываем соединение с базой данных."""
-    await conn.close()
+  """Закрываем соединение с базой данных."""
+  await conn.close()
 
 async def insert_scrapped_image(conn, filename, file_hash, file_content):
   """Вставить информацию о скрапленном изображении в базу данных."""
   await conn.execute("""
-      INSERT INTO public.scrapped_images (file_name, file_hash, file_data)
-      VALUES ($1, $2, $3)
+    INSERT INTO public.scrapped_images (file_name, file_hash, file_data)
+    VALUES ($1, $2, $3)
   """, filename, file_hash, file_content)
 
 async def fetch_all_scrapped_images_images(conn):
@@ -27,11 +27,11 @@ async def fetch_all_scrapped_images_images(conn):
     return await conn.fetch("SELECT id, file_name, file_hash, file_data FROM scrapped_images")
 
 async def fetch_all_rows_without_target(conn, target_id):
-   async with conn.transaction():
+  async with conn.transaction():
     return await conn.fetch("SELECT id, file_data FROM selected_images WHERE id != $1", target_id)
 
 async def fetch_selected_images_ids(conn):
-   return await conn.fetch("SELECT id FROM selected_images")
+  return await conn.fetch("SELECT id FROM selected_images")
 
 async def fetch_all_selected_images_id_data(conn):
   return await conn.fetch("SELECT id, file_data FROM selected_images")
