@@ -11,5 +11,9 @@ class PyramidParams(BaseModel):
 class ImageIdParams(BaseModel):
   image_id: int
 
+class PhotoFinderParams(BaseModel):
+  image_id: int
+  n_neighbors: int
+
 class ClipParams(BaseModel):
   search_text: str

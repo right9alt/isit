@@ -1,5 +1,5 @@
 import tqdm, cv2
-from finder.utils import database
+from finder.utils import database, constants
 import numpy as np
 from skimage.color import deltaE_ciede2000
 
@@ -18,7 +18,7 @@ async def fetch_image_data(ctx, image_id):
         ctx.logger.error(f"Ошибка при запросе данных изображения для ID {image_id}: {e}")
         return None
 
-def resize_image(image, target_size=(256, 256)):
+def resize_image(image, target_size=(constants.SIZE_256, constants.SIZE_256)):
     # Изменение размера изображения до указанного размера.
     return cv2.resize(image, target_size)
 

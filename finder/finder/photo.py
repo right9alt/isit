@@ -1,16 +1,9 @@
-import torch, io
+import torch, io, os
 import torchvision.transforms as transforms
-from torchvision.models import resnet50
-from finder.utils import database
+from finder.utils import database, constants
 from PIL import Image
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-
-
-# Загрузка предобученной модели ResNet50
-model = resnet50(pretrained=True)
-model = torch.nn.Sequential(*list(model.children())[:-1])
-model.eval()
 
 async def get_embedding_from_db(ctx, image_id):
     try:
@@ -21,26 +14,25 @@ async def get_embedding_from_db(ctx, image_id):
             if img.mode == 'RGBA':
                 img = img.convert('RGB')  # Преобразуем изображение в RGB, удаляя альфа-канал
             preprocess = transforms.Compose([
-                transforms.Resize(256),
-                transforms.CenterCrop(224),
+                transforms.Resize(constants.SIZE_256),
+                transforms.CenterCrop(constants.SIZE_224),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                transforms.Normalize(mean=constants.MEAN, std=constants.STD),
             ])
             image = preprocess(img)
             image = image.unsqueeze(0)
             with torch.no_grad():
-                embedding = model(image)
+                embedding = ctx.photo_model(image)
             return embedding.squeeze().numpy()
     except Exception as e:
         ctx.logger.error(f"Ошибка при получении эмбеддинга изображения: {e}")
         raise
 
-
-# Создание объекта NearestNeighbors для поиска ближайших соседей
-knn = NearestNeighbors(n_neighbors=5, metric='cosine')  # Используем косинусную метрику
-
-async def search_similar_images(query_image_id, knn, ctx):
+async def search_similar_images(query_image_id, ctx, n_neighbors):
     try:
+        # Создание объекта NearestNeighbors для поиска ближайших соседей
+        knn = NearestNeighbors(n_neighbors, metric=os.getenv("PHOTO_METRI"))  # Используем косинусную метрику
+
         # Получаем эмбеддинг запроса изображения из базы данных
         query_embedding = await get_embedding_from_db(ctx, query_image_id)
 
@@ -71,6 +63,6 @@ async def search_similar_images(query_image_id, knn, ctx):
         raise
 
 # Пример использования функции поиска и отображения похожих изображений
-async def find_by_photo(target_image_id, ctx):
-    similar_image_ids = await search_similar_images(target_image_id, knn, ctx)
+async def find_by_photo(target_image_id, ctx, n_neighbors):
+    similar_image_ids = await search_similar_images(target_image_id, ctx, n_neighbors)
     return similar_image_ids

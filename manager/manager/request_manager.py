@@ -1,12 +1,12 @@
-import requests, os
+import os
+import httpx
 
 class RequestManager:
-  @staticmethod
-  def post(url, json_data):
-    response = requests.post(url, json=json_data, \
-                             timeout=int(os.getenv("MAX_TIMEOUT")))
-    result = {
-      'status_code': response.status_code,
-      'data': response.json()
-    }
-    return result
+    @staticmethod
+    async def post(url, json_data):
+        async with httpx.AsyncClient() as client:
+          response = await client.post(url, json=json_data, timeout=float(os.getenv("MAX_TIMEOUT")))
+          return {
+              'status_code': response.status_code,
+              'data': response.json()
+          }

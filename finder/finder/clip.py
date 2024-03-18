@@ -40,15 +40,8 @@ async def text_search(model, preprocess, device, word, ctx, save=5):
 
     return [image_id for image_id, _ in similarities[:save]]
 
-def load_clip_model(ctx):
-    ctx.logger.info('загрузка clip модели...')
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device)
-    ctx.logger.info('clip загружена')
-    return model, preprocess, device
-
 async def clip_text_searcher(query, ctx):
-    model, preprocess, device = load_clip_model(ctx)
+    model, preprocess, device = ctx.clip_model
 
     return await text_search(model, preprocess, device, query, ctx)
 
