@@ -17,3 +17,6 @@ __pycache__
 
 # Игнорировать файлы IntelliJ IDEA
 .idea
+
+# Веса
+*.pth

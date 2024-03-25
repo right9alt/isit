@@ -31,6 +31,36 @@ services:
     depends_on:
       - postgres
 
+  fastapi-finder:
+    build:
+      context: ./
+      dockerfile: ./finder/Dockerfile
+    command: poetry run app -V
+    volumes:
+      - ./finder/:/app/
+      - ./utils/:/app/finder/utils/
+    env_file:
+      - ./.secrets/finder.env
+    ports:
+      - 8003:8003
+    depends_on:
+      - postgres
+
+  fastapi-manager:
+    build:
+      context: ./
+      dockerfile: ./manager/Dockerfile
+    command: poetry run app -V
+    volumes:
+      - ./manager/:/app/
+      - ./utils/:/app/manager/utils/
+    env_file:
+      - ./.secrets/manager.env
+    ports:
+      - 8004:8004
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:12.3-alpine
     restart: always

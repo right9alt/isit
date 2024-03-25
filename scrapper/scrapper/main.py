@@ -1,6 +1,6 @@
 import uvicorn, os, asyncpg
 from fastapi import Request, FastAPI
-from scrapper.models import ScraperParams
+from scrapper.utils.models import ScraperParams
 from scrapper import scrapper
 from scrapper.utils.utils import Context
 from scrapper.utils import database

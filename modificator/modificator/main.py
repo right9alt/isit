@@ -5,7 +5,7 @@ from modificator import duplicates
 from modificator import pyramid
 from modificator.utils.utils import Context
 from modificator.utils import database
-from modificator.models import PyramidParams
+from modificator.utils.models import PyramidParams
 
 app = FastAPI()
 
